@@ -1,20 +1,26 @@
+import { useEffect, useState } from 'react'
+import { supabase } from './lib/supabase'
 import Login from './Login'
+import Profile from './Profile'
 
 function App() {
-  return (
-    <div>
-      import Profile from './Profile'
+  const [session, setSession] = useState(null)
 
-function App() {
-  return (
-    <div>
-      <Profile />
-    </div>
-  )
-}
-    </div>
-  )
+  useEffect(() => {
+    const session = supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  return session ? <Profile /> : <Login />
 }
 
 export default App
-
