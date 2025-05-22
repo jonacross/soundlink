@@ -6,7 +6,11 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export async function updateProfile({ full_name, avatar_url }) {
-  const user = supabase.auth.user();
+  const {
+  data: { user },
+  error,
+} = await supabase.auth.getUser()
+
   const { data, error } = await supabase
     .from('profiles')
     .update({ full_name, avatar_url })
@@ -17,10 +21,17 @@ export async function updateProfile({ full_name, avatar_url }) {
 }
 
 export async function getProfile() {
-  const user = supabase.auth.user()
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError) throw userError
+  if (!user) throw new Error('No user logged in')
+
   const { data, error } = await supabase
     .from('profiles')
-    .select('full_name, avatar_url')
+    .select('*')
     .eq('id', user.id)
     .single()
 
