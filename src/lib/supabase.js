@@ -7,17 +7,20 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export async function updateProfile({ full_name, avatar_url }) {
   const {
-  data: { user },
-  error,
-} = await supabase.auth.getUser()
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
 
-  const { data, error } = await supabase
+  if (userError) throw userError
+  if (!user) throw new Error('No user logged in')
+
+  const { data, error: updateError } = await supabase
     .from('profiles')
     .update({ full_name, avatar_url })
-    .eq('id', user.id);
+    .eq('id', user.id)
 
-  if (error) throw error;
-  return data;
+  if (updateError) throw updateError
+  return data
 }
 
 export async function getProfile() {
@@ -29,12 +32,12 @@ export async function getProfile() {
   if (userError) throw userError
   if (!user) throw new Error('No user logged in')
 
-  const { data, error } = await supabase
+  const { data, error: profileError } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
 
-  if (error) throw error
+  if (profileError) throw profileError
   return data
 }
