@@ -3,7 +3,15 @@ import Login from './Login'
 function App() {
   return (
     <div>
-      <Login />
+      import Profile from './Profile'
+
+function App() {
+  return (
+    <div>
+      <Profile />
+    </div>
+  )
+}
     </div>
   )
 }
